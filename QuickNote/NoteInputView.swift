@@ -3,6 +3,7 @@ import SwiftUI
 struct NoteInputView: View {
     @State private var text = ""
     @State private var status: SubmitStatus = .idle
+    @State private var pendingCount = 0
 
     var body: some View {
         VStack(spacing: 0) {
@@ -29,9 +30,19 @@ struct NoteInputView: View {
             VisualEffectBackground()
         }
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .onAppear {
+            pendingCount = NoteQueue.shared.pendingCount
+        }
         .onReceive(NotificationCenter.default.publisher(for: .noteSubmitted)) { _ in
             status = .success
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                text = ""
+                status = .idle
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .noteQueued)) { _ in
+            status = .queued
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 text = ""
                 status = .idle
             }
@@ -40,11 +51,26 @@ struct NoteInputView: View {
             let message = notification.userInfo?["error"] as? String ?? "Neznámá chyba"
             status = .error(message)
         }
+        .onReceive(NotificationCenter.default.publisher(for: .pendingNotesChanged)) { _ in
+            pendingCount = NoteQueue.shared.pendingCount
+        }
     }
 
     private var bottomBar: some View {
         HStack {
             statusText
+
+            if pendingCount > 0 && status == .idle {
+                HStack(spacing: 4) {
+                    Circle()
+                        .fill(.orange)
+                        .frame(width: 6, height: 6)
+                    Text("\(pendingCount) čeká na odeslání")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.orange)
+                }
+            }
+
             Spacer()
             Text("⌘↩ Odeslat  ·  Esc Zrušit")
                 .font(.system(size: 11))
@@ -71,6 +97,10 @@ struct NoteInputView: View {
             Label("Odesláno", systemImage: "checkmark.circle.fill")
                 .font(.system(size: 11))
                 .foregroundStyle(.green)
+        case .queued:
+            Label("Uloženo, odešle se automaticky", systemImage: "arrow.clockwise.circle.fill")
+                .font(.system(size: 11))
+                .foregroundStyle(.orange)
         case .error(let message):
             Text(message)
                 .font(.system(size: 11))
@@ -87,8 +117,8 @@ struct NoteInputView: View {
     }
 }
 
-private enum SubmitStatus {
-    case idle, sending, success, error(String)
+private enum SubmitStatus: Equatable {
+    case idle, sending, success, queued, error(String)
 }
 
 // MARK: - Visual Effect Background

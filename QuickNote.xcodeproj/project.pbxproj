@@ -9,14 +9,15 @@
 /* Begin PBXBuildFile section */
 		2AC2324217151DA6D9A66EDA /* NoteInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E8F1D241D298DDB44A4DEB6 /* NoteInputView.swift */; };
 		2C189602A31159B4339F2DB0 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00559CD97827413C6728D2A7 /* SettingsView.swift */; };
+		3A712E5B8AE20A70232E4E66 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EA0BFF80AF691E258082F63 /* main.swift */; };
 		3AD660A8663D28B128D4C2AE /* NoteTextEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0C0B2BFC24AE2563529F0C1 /* NoteTextEditor.swift */; };
 		4253E7A7049B5CAC5DD43FF1 /* ShortcutRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEAB52FE6FA1246720B535B /* ShortcutRecorder.swift */; };
 		4254EC425D02E317F0681688 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CA2EFFE7DB3615B03F25D493 /* Assets.xcassets */; };
 		4CB32190D7BB90E6EE854485 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8E07170C7B74A5C80FB2D8E /* AppDelegate.swift */; };
 		4E2467C9B83C3F92EE731739 /* FloatingPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C4F81EEE955F13B6B11779E /* FloatingPanel.swift */; };
 		6DFE3E6CDD59347B1F7B46C1 /* NotionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A47CA553D51154B4D0BF7D3 /* NotionService.swift */; };
-		93A27FE3352D35FF5A0A00D0 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA2CEBAE9C90940A6198D05B /* main.swift */; };
 		B13E227E94FB7F2D34D0E4E7 /* GlobalHotkey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BCFBB116CD2214D41D3253 /* GlobalHotkey.swift */; };
+		C53C86D3A594974951B7DD73 /* NoteQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02F1836F0F679A79CF52314 /* NoteQueue.swift */; };
 		DC70FD908FFD87DDAE62FDDA /* AccessibilityHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A498C1E150ADA7821AB9E82C /* AccessibilityHelper.swift */; };
 /* End PBXBuildFile section */
 
@@ -25,12 +26,13 @@
 		031CE078251DAD8B12952268 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		05BCFBB116CD2214D41D3253 /* GlobalHotkey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalHotkey.swift; sourceTree = "<group>"; };
 		1C4F81EEE955F13B6B11779E /* FloatingPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPanel.swift; sourceTree = "<group>"; };
+		4EA0BFF80AF691E258082F63 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		5E8F1D241D298DDB44A4DEB6 /* NoteInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteInputView.swift; sourceTree = "<group>"; };
 		6A47CA553D51154B4D0BF7D3 /* NotionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotionService.swift; sourceTree = "<group>"; };
 		9EEAB52FE6FA1246720B535B /* ShortcutRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutRecorder.swift; sourceTree = "<group>"; };
 		A1748A19979B1DBAED24BD59 /* QuickNote.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = QuickNote.entitlements; sourceTree = "<group>"; };
 		A498C1E150ADA7821AB9E82C /* AccessibilityHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityHelper.swift; sourceTree = "<group>"; };
-		BA2CEBAE9C90940A6198D05B /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		C02F1836F0F679A79CF52314 /* NoteQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteQueue.swift; sourceTree = "<group>"; };
 		C0C0B2BFC24AE2563529F0C1 /* NoteTextEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteTextEditor.swift; sourceTree = "<group>"; };
 		CA2EFFE7DB3615B03F25D493 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D29DBF52163D2DB381BBD96E /* QuickNote.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QuickNote.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -55,11 +57,12 @@
 				1C4F81EEE955F13B6B11779E /* FloatingPanel.swift */,
 				05BCFBB116CD2214D41D3253 /* GlobalHotkey.swift */,
 				031CE078251DAD8B12952268 /* Info.plist */,
+				4EA0BFF80AF691E258082F63 /* main.swift */,
 				5E8F1D241D298DDB44A4DEB6 /* NoteInputView.swift */,
+				C02F1836F0F679A79CF52314 /* NoteQueue.swift */,
 				C0C0B2BFC24AE2563529F0C1 /* NoteTextEditor.swift */,
 				6A47CA553D51154B4D0BF7D3 /* NotionService.swift */,
 				A1748A19979B1DBAED24BD59 /* QuickNote.entitlements */,
-				BA2CEBAE9C90940A6198D05B /* main.swift */,
 				00559CD97827413C6728D2A7 /* SettingsView.swift */,
 				9EEAB52FE6FA1246720B535B /* ShortcutRecorder.swift */,
 			);
@@ -144,11 +147,12 @@
 				4E2467C9B83C3F92EE731739 /* FloatingPanel.swift in Sources */,
 				B13E227E94FB7F2D34D0E4E7 /* GlobalHotkey.swift in Sources */,
 				2AC2324217151DA6D9A66EDA /* NoteInputView.swift in Sources */,
+				C53C86D3A594974951B7DD73 /* NoteQueue.swift in Sources */,
 				3AD660A8663D28B128D4C2AE /* NoteTextEditor.swift in Sources */,
 				6DFE3E6CDD59347B1F7B46C1 /* NotionService.swift in Sources */,
-				93A27FE3352D35FF5A0A00D0 /* main.swift in Sources */,
 				2C189602A31159B4339F2DB0 /* SettingsView.swift in Sources */,
 				4253E7A7049B5CAC5DD43FF1 /* ShortcutRecorder.swift in Sources */,
+				3A712E5B8AE20A70232E4E66 /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,4 +1,5 @@
 import AppKit
+import Network
 import ServiceManagement
 import SwiftUI
 
@@ -13,6 +14,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var settingsPanel: FloatingPanel!
     private var hotkey: GlobalHotkey?
     private var settingsEscapeMonitor: Any?
+    private var networkMonitor: NWPathMonitor?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         AppDelegate.shared = self
@@ -26,6 +28,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         registerHotkey()
         enableLaunchAtLoginOnFirstRun()
         AccessibilityHelper.promptIfNeeded()
+        startNetworkMonitor()
+        NoteQueue.shared.flush()
 
         NotificationCenter.default.addObserver(
             self,
@@ -135,6 +139,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         registerHotkey()
     }
 
+    // MARK: - Network Monitor
+
+    private func startNetworkMonitor() {
+        let monitor = NWPathMonitor()
+        monitor.pathUpdateHandler = { path in
+            if path.status == .satisfied {
+                NoteQueue.shared.flush()
+            }
+        }
+        monitor.start(queue: DispatchQueue(label: "cz.quicknote.network"))
+        networkMonitor = monitor
+    }
+
     // MARK: - Main Panel
 
     func togglePanel() {
@@ -208,21 +225,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Submit
 
     func submitNote(text: String) {
+        // Persist first — note is safe on disk before any network call
+        let noteId = NoteQueue.shared.enqueue(text: text)
+
         Task {
-            do {
-                try await NotionService.shared.append(text: text)
-                await MainActor.run {
+            let result = await NoteQueue.shared.trySend(id: noteId)
+            await MainActor.run {
+                switch result {
+                case .sent:
                     NotificationCenter.default.post(name: .noteSubmitted, object: nil)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                         self.hidePanel()
                     }
-                }
-            } catch {
-                await MainActor.run {
+                    // Flush any other pending notes
+                    NoteQueue.shared.flush()
+
+                case .queued:
+                    NotificationCenter.default.post(name: .noteQueued, object: nil)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        self.hidePanel()
+                    }
+
+                case .configError(let message):
                     NotificationCenter.default.post(
                         name: .noteSubmitFailed,
                         object: nil,
-                        userInfo: ["error": error.localizedDescription]
+                        userInfo: ["error": message]
                     )
                 }
             }
@@ -252,4 +280,6 @@ extension Notification.Name {
     static let hotkeySettingsChanged = Notification.Name("hotkeySettingsChanged")
     static let noteSubmitted = Notification.Name("noteSubmitted")
     static let noteSubmitFailed = Notification.Name("noteSubmitFailed")
+    static let noteQueued = Notification.Name("noteQueued")
+    static let pendingNotesChanged = Notification.Name("pendingNotesChanged")
 }
