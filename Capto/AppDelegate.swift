@@ -19,6 +19,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         AppDelegate.shared = self
 
+        migrateUserDefaults()
+
         // Clean up cached SwiftUI Settings window frame to prevent ghost title-bar window
         UserDefaults.standard.removeObject(forKey: "NSWindow Frame com_apple_SwiftUI_Settings_window")
 
@@ -49,7 +51,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let appMenu = NSMenu()
         appMenu.addItem(withTitle: "Nastavení…", action: #selector(openSettingsAction), keyEquivalent: ",")
         appMenu.addItem(.separator())
-        appMenu.addItem(withTitle: "Ukončit Quick Note", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        appMenu.addItem(withTitle: "Ukončit Capto", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         appMenuItem.submenu = appMenu
         mainMenu.addItem(appMenuItem)
 
@@ -148,7 +150,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 NoteQueue.shared.flush()
             }
         }
-        monitor.start(queue: DispatchQueue(label: "cz.quicknote.network"))
+        monitor.start(queue: DispatchQueue(label: "cz.capto.network"))
         networkMonitor = monitor
     }
 
@@ -262,6 +264,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard !UserDefaults.standard.bool(forKey: key) else { return }
         UserDefaults.standard.set(true, forKey: key)
         try? SMAppService.mainApp.register()
+    }
+
+    private func migrateUserDefaults() {
+        let current = UserDefaults.standard
+        guard !current.bool(forKey: "didMigrateFromQuickNote") else { return }
+
+        if let old = UserDefaults(suiteName: "com.danielgamrot.QuickNote") {
+            let keys = ["notionToken", "notionPageId", "shortcutKeyCode", "shortcutModifiers", "hasEnabledLaunchAtLogin"]
+            for key in keys {
+                if let value = old.object(forKey: key), current.object(forKey: key) == nil {
+                    current.set(value, forKey: key)
+                }
+            }
+        }
+
+        current.set(true, forKey: "didMigrateFromQuickNote")
     }
 
     private func centerPanel(_ targetPanel: NSPanel) {

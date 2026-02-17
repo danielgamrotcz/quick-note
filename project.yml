@@ -1,4 +1,4 @@
-name: QuickNote
+name: Capto
 options:
   bundleIdPrefix: com.danielgamrot
   deploymentTarget:
@@ -14,14 +14,14 @@ settings:
     ENABLE_HARDENED_RUNTIME: YES
 
 targets:
-  QuickNote:
+  Capto:
     type: application
     platform: macOS
     sources:
-      - QuickNote
+      - Capto
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.danielgamrot.QuickNote
-        INFOPLIST_FILE: QuickNote/Info.plist
-        CODE_SIGN_ENTITLEMENTS: QuickNote/QuickNote.entitlements
+        PRODUCT_BUNDLE_IDENTIFIER: com.danielgamrot.Capto
+        INFOPLIST_FILE: Capto/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Capto/Capto.entitlements
         GENERATE_INFOPLIST_FILE: false

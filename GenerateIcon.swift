@@ -105,7 +105,7 @@ func savePNG(_ rep: NSBitmapImageRep, path: String) {
     }
 }
 
-let outputDir = "QuickNote/Assets.xcassets/AppIcon.appiconset"
+let outputDir = "Capto/Assets.xcassets/AppIcon.appiconset"
 
 for size in [128, 256, 512, 1024] {
     let rep = generateIcon(pixelSize: size)

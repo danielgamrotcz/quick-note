@@ -23,7 +23,15 @@ final class NoteQueue {
         let appSupport = FileManager.default.urls(
             for: .applicationSupportDirectory, in: .userDomainMask
         ).first!
-        let dir = appSupport.appendingPathComponent("QuickNote", isDirectory: true)
+        let dir = appSupport.appendingPathComponent("Capto", isDirectory: true)
+
+        // One-time migration from QuickNote
+        let oldDir = appSupport.appendingPathComponent("QuickNote", isDirectory: true)
+        if FileManager.default.fileExists(atPath: oldDir.path)
+            && !FileManager.default.fileExists(atPath: dir.path) {
+            try? FileManager.default.moveItem(at: oldDir, to: dir)
+        }
+
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         fileURL = dir.appendingPathComponent("pending-notes.json")
     }

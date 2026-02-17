@@ -12,3 +12,7 @@ xcuserdata/
 
 # Claude Code
 .claude/
+CLAUDE.local.md
+
+# Environment
+.env
