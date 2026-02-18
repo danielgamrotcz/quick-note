@@ -66,8 +66,8 @@ struct NoteInputView: View {
             let pending = notification.userInfo?["pending"] as? String ?? ""
             let base = recordingBaseText
             let sep = base.isEmpty || base.hasSuffix(" ") || base.hasSuffix("\n") ? "" : " "
-            text = base + sep + committed
-            status = .recording(pending)
+            text = base + sep + committed + pending
+            status = .recording("")
         }
     }
 

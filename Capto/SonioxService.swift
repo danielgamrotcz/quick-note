@@ -138,6 +138,8 @@ final class SonioxService {
 
         for token in tokens {
             guard let text = token["text"] as? String else { continue }
+            // Skip Soniox control markers like <fin>, <unk>, etc.
+            guard !(text.hasPrefix("<") && text.hasSuffix(">")) else { continue }
             if token["is_final"] as? Bool == true {
                 newCommitted += text
             } else {
