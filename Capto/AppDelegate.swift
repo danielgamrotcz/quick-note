@@ -97,7 +97,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func setupSettingsPanel() {
         settingsPanel = FloatingPanel(
-            size: NSSize(width: 480, height: 500),
+            size: NSSize(width: 480, height: 460),
             hidesOnDeactivate: false
         )
         let hostingView = NSHostingView(rootView: SettingsView())
@@ -287,7 +287,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let screenFrame = screen.visibleFrame
         let panelSize = targetPanel.frame.size
         let x = screenFrame.midX - panelSize.width / 2
-        let y = screenFrame.midY - panelSize.height / 2 + screenFrame.height * 0.15
+        let y = screenFrame.midY - panelSize.height / 2
         targetPanel.setFrameOrigin(NSPoint(x: x, y: y))
     }
 }

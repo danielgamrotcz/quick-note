@@ -37,7 +37,7 @@ struct SettingsView: View {
 
             bottomBar
         }
-        .frame(width: 480, height: accessibilityGranted ? 500 : 570)
+        .frame(width: 480, height: accessibilityGranted ? 600 : 670)
         .background {
             VisualEffectBackground()
         }
