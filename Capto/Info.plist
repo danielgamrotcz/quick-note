@@ -26,7 +26,13 @@
 	<string></string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>CFBundleIconFile</key>
+	<string>Capto</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Capto používá mikrofon pro přepis hlasu do textu poznámky.</string>
+	<key>SUFeedURL</key>
+	<string>https://raw.githubusercontent.com/danielgamrotcz/capto-macos/main/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>0lnSWzrHi/jMbv7ZSZSB9VZ+id4iRJN2lAhwYEXrTYQ=</string>
 </dict>
 </plist>

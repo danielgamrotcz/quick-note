@@ -13,12 +13,19 @@ settings:
     CODE_SIGN_IDENTITY: "-"
     ENABLE_HARDENED_RUNTIME: YES
 
+packages:
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle.git
+    from: "2.0.0"
+
 targets:
   Capto:
     type: application
     platform: macOS
     sources:
       - Capto
+    dependencies:
+      - package: Sparkle
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.danielgamrot.Capto

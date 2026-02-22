@@ -1,6 +1,6 @@
 import AppKit
-import Network
 import ServiceManagement
+import Sparkle
 import SwiftUI
 
 // ctrl+opt+cmd = controlKey(0x1000) | optionKey(0x0800) | cmdKey(0x0100)
@@ -14,7 +14,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var settingsPanel: FloatingPanel!
     private var hotkey: GlobalHotkey?
     private var settingsEscapeMonitor: Any?
-    private var networkMonitor: NWPathMonitor?
+    private let updaterController = SPUStandardUpdaterController(
+        startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil
+    )
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         AppDelegate.shared = self
@@ -30,8 +32,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         registerHotkey()
         enableLaunchAtLoginOnFirstRun()
         AccessibilityHelper.promptIfNeeded()
-        startNetworkMonitor()
-        NoteQueue.shared.flush()
 
         NotificationCenter.default.addObserver(
             self,
@@ -49,6 +49,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // App menu
         let appMenuItem = NSMenuItem()
         let appMenu = NSMenu()
+        appMenu.addItem(withTitle: "Zkontrolovat aktualizace…", action: #selector(checkForUpdatesAction), keyEquivalent: "")
+        appMenu.addItem(.separator())
         appMenu.addItem(withTitle: "Nastavení…", action: #selector(openSettingsAction), keyEquivalent: ",")
         appMenu.addItem(.separator())
         appMenu.addItem(withTitle: "Ukončit Capto", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
@@ -69,6 +71,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         mainMenu.addItem(editMenuItem)
 
         NSApp.mainMenu = mainMenu
+    }
+
+    @objc private func checkForUpdatesAction() {
+        updaterController.checkForUpdates(nil)
     }
 
     @objc private func openSettingsAction() {
@@ -97,7 +103,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func setupSettingsPanel() {
         settingsPanel = FloatingPanel(
-            size: NSSize(width: 480, height: 460),
+            size: NSSize(width: 480, height: 560),
             hidesOnDeactivate: false
         )
         let hostingView = NSHostingView(rootView: SettingsView())
@@ -139,19 +145,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         hotkey?.unregister()
         hotkey = nil
         registerHotkey()
-    }
-
-    // MARK: - Network Monitor
-
-    private func startNetworkMonitor() {
-        let monitor = NWPathMonitor()
-        monitor.pathUpdateHandler = { path in
-            if path.status == .satisfied {
-                NoteQueue.shared.flush()
-            }
-        }
-        monitor.start(queue: DispatchQueue(label: "cz.capto.network"))
-        networkMonitor = monitor
     }
 
     // MARK: - Main Panel
@@ -227,32 +220,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Submit
 
     func submitNote(text: String) {
-        // Persist first — note is safe on disk before any network call
-        let noteId = NoteQueue.shared.enqueue(text: text)
-
         Task {
-            let result = await NoteQueue.shared.trySend(id: noteId)
-            await MainActor.run {
-                switch result {
-                case .sent:
+            do {
+                try await FileNoteService.shared.saveNote(text: text)
+                await MainActor.run {
                     NotificationCenter.default.post(name: .noteSubmitted, object: nil)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                         self.hidePanel()
                     }
-                    // Flush any other pending notes
-                    NoteQueue.shared.flush()
-
-                case .queued:
-                    NotificationCenter.default.post(name: .noteQueued, object: nil)
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                        self.hidePanel()
-                    }
-
-                case .configError(let message):
+                }
+            } catch {
+                await MainActor.run {
                     NotificationCenter.default.post(
-                        name: .noteSubmitFailed,
-                        object: nil,
-                        userInfo: ["error": message]
+                        name: .noteSubmitFailed, object: nil,
+                        userInfo: ["error": error.localizedDescription]
                     )
                 }
             }
@@ -298,7 +279,5 @@ extension Notification.Name {
     static let hotkeySettingsChanged = Notification.Name("hotkeySettingsChanged")
     static let noteSubmitted = Notification.Name("noteSubmitted")
     static let noteSubmitFailed = Notification.Name("noteSubmitFailed")
-    static let noteQueued = Notification.Name("noteQueued")
-    static let pendingNotesChanged = Notification.Name("pendingNotesChanged")
-    static let transcriptUpdate = Notification.Name("transcriptUpdate")
+static let transcriptUpdate = Notification.Name("transcriptUpdate")
 }

@@ -3,7 +3,6 @@ import SwiftUI
 struct NoteInputView: View {
     @State private var text = ""
     @State private var status: SubmitStatus = .idle
-    @State private var pendingCount = 0
     @State private var recordingBaseText = ""
 
     var body: some View {
@@ -37,9 +36,6 @@ struct NoteInputView: View {
             VisualEffectBackground()
         }
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-        .onAppear {
-            pendingCount = NoteQueue.shared.pendingCount
-        }
         .onReceive(NotificationCenter.default.publisher(for: .noteSubmitted)) { _ in
             status = .success
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
@@ -47,19 +43,9 @@ struct NoteInputView: View {
                 status = .idle
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .noteQueued)) { _ in
-            status = .queued
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                text = ""
-                status = .idle
-            }
-        }
         .onReceive(NotificationCenter.default.publisher(for: .noteSubmitFailed)) { notification in
             let message = notification.userInfo?["error"] as? String ?? "Neznámá chyba"
             status = .error(message)
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .pendingNotesChanged)) { _ in
-            pendingCount = NoteQueue.shared.pendingCount
         }
         .onReceive(NotificationCenter.default.publisher(for: .transcriptUpdate)) { notification in
             let committed = notification.userInfo?["committed"] as? String ?? ""
@@ -80,19 +66,8 @@ struct NoteInputView: View {
         HStack {
             statusText
 
-            if pendingCount > 0 && status == .idle {
-                HStack(spacing: 4) {
-                    Circle()
-                        .fill(.orange)
-                        .frame(width: 6, height: 6)
-                    Text("\(pendingCount) čeká na odeslání")
-                        .font(.system(size: 11))
-                        .foregroundStyle(.orange)
-                }
-            }
-
             Spacer()
-            Text(isRecording ? "Uvolněte ⌥ pro dokončení" : "⌘↩ Odeslat  ·  Esc Zrušit")
+            Text(isRecording ? "Uvolněte ⌥ pro dokončení" : "⌘↩ Uložit  ·  Esc Zrušit")
                 .font(.system(size: 11))
                 .foregroundStyle(.tertiary)
         }
@@ -109,18 +84,14 @@ struct NoteInputView: View {
             HStack(spacing: 6) {
                 ProgressView()
                     .controlSize(.small)
-                Text("Odesílání...")
+                Text("Ukládání...")
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
             }
         case .success:
-            Label("Odesláno", systemImage: "checkmark.circle.fill")
+            Label("Uloženo", systemImage: "checkmark.circle.fill")
                 .font(.system(size: 11))
                 .foregroundStyle(.green)
-        case .queued:
-            Label("Uloženo, odešle se automaticky", systemImage: "arrow.clockwise.circle.fill")
-                .font(.system(size: 11))
-                .foregroundStyle(.orange)
         case .error(let message):
             Text(message)
                 .font(.system(size: 11))
@@ -178,7 +149,7 @@ struct NoteInputView: View {
 }
 
 private enum SubmitStatus: Equatable {
-    case idle, sending, success, queued, error(String), recording(String)
+    case idle, sending, success, error(String), recording(String)
 }
 
 // MARK: - Recording dot
